@@ -26,6 +26,12 @@
    export PATH=$PATH:/usr/local/go/bin
    ```
 
+#### 常见问题
+
+环境变量添加到~/.profile，重启terminal后无效。
+
+解决办法：可以讲环境变量添加到~/.bashrc中。
+
 ## 2. uninstall
 
 ### 1. mac
