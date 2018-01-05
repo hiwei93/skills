@@ -1006,7 +1006,7 @@ type Stringer interface {
 }
 ```
 
-Stringer是一个可以一字符串描述其自身的类型。`fmt` 包（和其他包）会查找这个借口来打印值。
+Stringer是一个可以以字符串描述其自身的类型。`fmt` 包（和其他包）会查找这个接口来打印值。
 
 ``` go
 type Person struct {
@@ -1023,7 +1023,7 @@ func (p Person) String() string {
 
 Go程序使用错误值来表示错误状态。
 
-`error`类型是内建借口：
+`error`类型是内建接口：
 
 ``` go
 type error interface {
