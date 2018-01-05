@@ -64,6 +64,8 @@ source ~/.bash_profile
 export GOBIN=$HOME/work/bin
 ```
 
+> 注意：Ubuntu环境下需要编辑`~/.bashrc`。
+
 ### Zsh
 
 编辑`~/.zshrc`文件，添加以下命令：
