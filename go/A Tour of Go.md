@@ -33,11 +33,14 @@
             - [结构体指针](#%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%87%E9%92%88)
             - [结构体文法](#%E7%BB%93%E6%9E%84%E4%BD%93%E6%96%87%E6%B3%95)
         - [数组](#%E6%95%B0%E7%BB%84)
-            - [slice](#slice)
+        - [slice](#slice)
+            - [slice像是对数组的引用](#slice%E5%83%8F%E6%98%AF%E5%AF%B9%E6%95%B0%E7%BB%84%E7%9A%84%E5%BC%95%E7%94%A8)
+            - [slice文法](#slice%E6%96%87%E6%B3%95)
+            - [slice 默认值](#slice-%E9%BB%98%E8%AE%A4%E5%80%BC)
+            - [slice的长度和容量](#slice%E7%9A%84%E9%95%BF%E5%BA%A6%E5%92%8C%E5%AE%B9%E9%87%8F)
+            - [Nil slice](#nil-slice)
+            - [使用`make`方法创建slice](#%E4%BD%BF%E7%94%A8make%E6%96%B9%E6%B3%95%E5%88%9B%E5%BB%BAslice)
             - [slice 的 slice](#slice-%E7%9A%84-slice)
-            - [对 slice 切片](#%E5%AF%B9-slice-%E5%88%87%E7%89%87)
-            - [构造 slice](#%E6%9E%84%E9%80%A0-slice)
-            - [nil slice](#nil-slice)
             - [向 slice 添加元素](#%E5%90%91-slice-%E6%B7%BB%E5%8A%A0%E5%85%83%E7%B4%A0)
             - [range](#range)
         - [map](#map)
@@ -445,7 +448,10 @@ p := &v
 p.X = 1e9
 ```
 
-通过指针间接的访问是透明的。
+通过指针间接的访问是透明的：
+
+- 使用结构体指针访问结构体的字段`X`，应该写成`(*p).X`。
+- 这样写很繁琐，所以Go语言在没有明确解除引用的情况下，允许写成`p.X`。
 
 #### 结构体文法
 
@@ -475,17 +481,86 @@ var a [10]int
 - 数组的长度是其类型的一部分，因此数组不能改变大小。
 - 这看起来是一个制约，但是请不要担心，Go 提供了更加便利的方式来使用数组。
 
-#### slice
+### slice
+
+1. slice是一个动态大小的、可伸缩的数组元素视图。实际使用中，slice比数组更常见
+
+1. 类型`[]T`是一个元素类型为`T`的 slice。
+
+1. 通过指定两个下标（low和high的范围）和一个冒号来区分一个切片：
+
+   ``` go
+   a[low : high]
+   ```
+
+   将会选择一个半开区间：包含第一个元素，但是不包含最后一个元素。
 
 一个 slice 会指向一个序列的值，并且包含了长度信息。
 
-`[]T` 是一个元素类型为 T 的 slice。
+#### slice像是对数组的引用
 
-`len(s)` 返回 slice s 的长度。
+1. slice并不存储任何数据，它只是描述了底层数据的一部分。
+1. 改变slice中的元素会改变底层数组的相应元素。
+1. 共用相同底层元素的slice将会看到这些更改。
+
+#### slice文法
+
+slice文法就像不包含长度的数组文法：
+
+```go
+// Array literal
+[3]bool{true, false, true}
+
+// Slice literal
+[]bool{true, false, true}
+```
+
+#### slice 默认值
+
+在分片的时候，可以忽略低位下标或高位下标的范围来使用其默认值。
+
+- 低位下标的默认值为0；
+- 高位下标的默认值为slice的长度。
+
+#### slice的长度和容量
+
+1. slice具有长度和容量。
+
+   - slice的长度：指slice包含元素的数量；
+   - slice的容量：指底层数组的元素数量，从切片的第一个元素开始计算。
+
+1. 使用`len(s)`获取slice `s`的长度；使用`cap(s)`获取slice `s`的容量。
+
+   ``` go
+   s := []int{2, 3, 5, 7, 11, 13}
+   len(s)
+   cap(s)
+   ```
+
+1. 通过重新切片可以延长切片的长度
+
+#### Nil slice
+
+没有值的slice就是nil。
+
+nil slice的长度和容量都为0，而且没有相应的底层数组。
+
+#### 使用`make`方法创建slice
+
+slice可以使用内建函数去创建；这也是创建动态大小数组的方式。
+
+`make`函数分配一个归0数组并返回一个引用该数组的slice：
 
 ``` go
-s := []int{2, 3, 5, 7, 11, 13}
-len(s)
+a := make([]int, 5)  // len(a)=5
+```
+
+可以通过传递`make`函数的第三个参数来指定slice的容量。
+
+``` go
+b := make([]int, 0, 5) // len(b)=0, cap(b)=5
+
+b = b[:cap(b)] // len(b)=5, cap(b)=5
 ```
 
 #### slice 的 slice
@@ -500,41 +575,6 @@ game := [][]string{
 }
 game[2][0] = "X"
 ```
-
-#### 对 slice 切片
-
-slice 可以重新切片，创建一个新的 slice 值指向相同的数组。
-
-``` go
-s[lo:hi]
-```
-
-表示从 lo 到 hi-1 的 slice 元素。
-
-#### 构造 slice
-
-slice 由函数 `make` 创建。这会分配一个全是零值的数组并且返回一个 slice 指向这个数组：
-
-``` go
-a := make([]int, 5)  // len(a)=5
-```
-
-为了指定容量，可传递第三个参数到 make：
-
-``` go
-b := make([]int, 0, 5) // len(b)=0, cap(b)=5
-```
-
-- 第二个参数是初始化的slice元素个数
-- 第三个参数是slice的最大容量。
-
-`cap()`返回slice的最大容量。
-
-#### nil slice
-
-slice 的零值是 nil 。
-
-一个 nil 的 slice 的长度和容量是 0。
 
 #### 向 slice 添加元素
 
@@ -555,7 +595,7 @@ func append(s []T, vs ...T) []T
 
 #### range
 
-for 循环的 range 格式可以对 slice 或者 map 进行迭代循环。
+for 循环的 range 语法可以对 slice 或者 map 进行迭代循环。
 
 当使用 for 循环遍历一个 slice 时，每次迭代 range 将返回两个值。 第一个是当前下标（序号），第二个是该下标所对应元素的一个拷贝。
 
@@ -595,6 +635,8 @@ func main() {
 ```
 
 #### map 的文法
+
+map的文法类似与结构体的文法，但是必须包含键：
 
 ``` go
 type Vertex struct {
