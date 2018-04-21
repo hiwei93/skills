@@ -3,6 +3,7 @@
 ## 获取文件夹中所有文件、文件夹
 
 ``` python
+import os
 with os.scandir(path) as it:
     for entry in it:
         if entry.is_file() and entry.name.endswith('.xlsx'):
@@ -13,6 +14,7 @@ with os.scandir(path) as it:
 ## 创建文件夹
 
 ``` python
+import os
 if not os.path.exists(path):
     os.mkdir(path)
 ```
@@ -20,6 +22,7 @@ if not os.path.exists(path):
 ## 读取json文件
 
 ``` python
+import json
 with open(jsonPath, mode="r", encoding="utf-8") as f:
     content = json.load(f)
 ```
@@ -27,6 +30,7 @@ with open(jsonPath, mode="r", encoding="utf-8") as f:
 ## 生成json文件
 
 ``` python
-with open('./output/' + fileName, 'w+', encoding="utf-8") as f: 
+import json
+with open('./output/' + fileName, 'w+', encoding="utf-8") as f:
     json.dump(content, f)
 ```
