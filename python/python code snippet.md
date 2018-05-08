@@ -70,5 +70,5 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
     json.dump(content, f)
 ```
 
-中文问题：
-设置`json.dump()`方法的参数`ensure_ascii=False`，就可以正常导出json中的中文了。
+- 设置`json.dump()`方法的参数`ensure_ascii=False`，就可以正常导出json中的中文了。
+- 设置`json.dump()`方法的参数`separators=(',', ':')`，就可以将导出紧凑的json格式了。
