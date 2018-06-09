@@ -9,7 +9,10 @@ with os.scandir(path) as it:
         if entry.is_file() and entry.name.endswith('.xlsx'):
 ```
 
-使用`os.scandir()`可以获取文件夹中的所有文件信息。
+`os.scandir()`方法返回一个`DirEntry`对象的迭代器，通过`DirEntry`对象可以获取文件或文件夹的属性。
+
+- 查看 [`os.scandir()`](https://docs.python.org/3.5/library/os.html?highlight=scandir#os.scandir)
+- 查看 [`os.DirEntry`](https://docs.python.org/3.5/library/os.html?highlight=scandir#os.DirEntry)
 
 ## 创建文件夹
 
