@@ -12,6 +12,7 @@
     - [写入文件](#%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6)
         - [生成json文件](#%E7%94%9F%E6%88%90json%E6%96%87%E4%BB%B6)
     - [正则表达式](#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F)
+    - [日志系统](#%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F)
 
 <!-- /TOC -->
 
@@ -159,3 +160,16 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
     m = re.search("remove_this", email)
     email[:m.start()] + email[m.end():] # 'tony@tiger.net'
     ```
+
+## 日志系统
+
+1. 常用日志配置
+
+    ``` python
+    logging.basicConfig(filename='execute.log',
+            filemode='w',level=logging.DEBUG,
+            format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
+            datefmt='%Y/%m/%d %I:%M:%S %p')
+    ```
+
+    打印日志格式如：`2018/07/06 11:54:48 AM - MainThread - INFO - message`
