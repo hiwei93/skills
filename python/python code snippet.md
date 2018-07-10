@@ -64,7 +64,7 @@ with open(file_path, mode="r", encoding="utf-8") as f:
 
 ``` python
 with open(file_path, mode="r", encoding="utf-8") as f:
-   line = f.readline()
+    line = f.readline()
     while line:
         # do something ...
         line = f.readline()
@@ -72,11 +72,9 @@ with open(file_path, mode="r", encoding="utf-8") as f:
 
 ``` python
 with open(file_path, mode="r", encoding="utf-8") as f:
-   lines = f.readlines()
-    while lines:
-        for line in lines:
-            # do something ...
-        lines = f.readlines()
+    lines = f.readlines()
+    for line in lines:
+        # do something ...
 ```
 
 上述情况，与下面的代码等价：
@@ -86,7 +84,16 @@ for line in open(file_path, mode="r", encoding="utf-8"):
     # do something ...
 ```
 
-- `readline(size=-1)`和`readlines(hint=-1)`可以传入字节数来控制获取内容的大小。
+`readline(size=-1)`和`readlines(hint=-1)`可以传入字节数来控制获取内容的大小，如：
+
+``` python
+with open(file_path, mode="r", encoding="utf-8") as f:
+   lines = f.readlines(10)
+    while lines:
+        for line in lines:
+            # do something ...
+        lines = f.readlines(10)
+```
 
 ### 读取json文件
 
@@ -128,8 +135,9 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
     json.dump(content, f)
 ```
 
-- 设置`json.dump()`方法的参数`ensure_ascii=False`，就可以正常导出json中的中文了。
+- 设置`json.dump()`方法的参数`ensure_ascii=False`，就可以正常导出json中的中文（或者其他非ASCII编码的字符）了。
 - 设置`json.dump()`方法的参数`separators=(',', ':')`，就可以将导出紧凑的json格式了。
+- 设置`json.dump()`方法的参数`indent=4`，就可以将导出进行缩进格式化后的json的了。
 
 ## 正则表达式
 
