@@ -12,6 +12,8 @@
     - [写入文件](#%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6)
         - [生成json文件](#%E7%94%9F%E6%88%90json%E6%96%87%E4%BB%B6)
     - [正则表达式](#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F)
+    - [多线程、多线程](#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E3%80%81%E5%A4%9A%E7%BA%BF%E7%A8%8B)
+        - [多线程+多进程处理文件](#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%9A%E8%BF%9B%E7%A8%8B%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6)
     - [日志系统](#%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F)
 
 <!-- /TOC -->
@@ -168,6 +170,64 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
     m = re.search("remove_this", email)
     email[:m.start()] + email[m.end():] # 'tony@tiger.net'
     ```
+
+## 多线程、多线程
+
+### 多线程+多进程处理文件
+
+该方式处理的文件为每行为一个json对象。
+
+``` python
+import os, json, math
+import multiprocessing, threading
+
+process_num = 3 # 进程最大数量
+thread_num = 10 # 线程最大数量
+
+def core_execute(lines):
+    output_file = 'output.json'
+    with open(output_file, mode='a', encoding='utf-8') as output:
+        for line in lines:
+            # 处理数据
+            obj = json.loads(line)
+            converted = execute(obj)
+            output.write(json.dumps(converted, ensure_ascii=False, separators=(',', ':')) + "\n")
+
+def assign_thread(lines):
+    batch_size = math.ceil(len(lines) / thread_num) # 计算每个线程需要处理的数量
+    thread_pool = []
+    # 分配线程
+    for i in range(thread_num):
+        offset = batch_size * i
+        t = threading.Thread(target=core_execute, args=(lines[offset:offset + batch_size],))
+        t.start()
+        thread_pool.append(t)
+    for thread in thread_pool:
+        thread.join()
+
+def assign_process():
+    execute_file = 'should_be_execute.json'
+    output_file = 'output.json'
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    buffer_size = int(10 * 1024 * 1024 / 2) # 一次读取文件的大小
+    process_pool = []
+    with open(execute_file, mode='r', encoding='utf-8') as f:
+        # 读取并分配进程
+        lines = f.readlines(buffer_size)
+        while lines:
+            logging
+            p = multiprocessing.Process(target=assign_thread, args=(lines,))
+            p.start()
+            process_pool.append(p)
+            while len(process_pool) >= process_num:
+                process_pool.pop(0).join
+            lines = f.readlines(buffer_size)
+        for process in process_pool:
+            process.join()
+```
+
+注：多进程不可使用一个文件对象，因为每个进程会拷贝一个文件对象，会导致各进程间写文件时相互覆盖。
 
 ## 日志系统
 
