@@ -1,5 +1,15 @@
 # shell snippet
 
+## 查看目录下的内容
+
+### 以易于人类阅读的形式显示
+
+这样可以带单位的显示文件大小（KB，M，...）
+
+``` bash
+sh -lh
+```
+
 ## 文件中搜索指定字符串
 
 ``` bash
@@ -41,4 +51,20 @@ wc -l filename
 
 ``` bash
 split -行数 需要分割的文件名 输出文件的前缀名
+```
+
+## 合并文件
+
+合并file1.txt和file2.txt的内容到file.txt：
+
+``` bash
+cat file1.txt file2.txt > file.txt
+```
+
+## 追加内容到文件
+
+将file2.txt的内容追加到file1.txt：
+
+``` bash
+cat file2.txt >> file1.txt
 ```
