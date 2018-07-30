@@ -68,3 +68,11 @@ cat file1.txt file2.txt > file.txt
 ``` bash
 cat file2.txt >> file1.txt
 ```
+
+## 替换文件内容
+
+将文件file1.txt字符串string1转换成string2
+
+``` bash
+sed 's/string1/string2/g' file1.txt > file2.txt
+```
