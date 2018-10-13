@@ -1,20 +1,24 @@
 # python code snippet
 
+说明：以下代码均基于python3.6
+
 <!-- TOC -->
 
 - [python code snippet](#python-code-snippet)
-    - [获取文件夹中所有文件、文件夹](#%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E3%80%81%E6%96%87%E4%BB%B6%E5%A4%B9)
-    - [创建文件夹](#%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9)
-    - [读取文件](#%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6)
-        - [按行读取文件](#%E6%8C%89%E8%A1%8C%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6)
-        - [读取json文件](#%E8%AF%BB%E5%8F%96json%E6%96%87%E4%BB%B6)
-        - [读取CSV文件](#%E8%AF%BB%E5%8F%96csv%E6%96%87%E4%BB%B6)
-    - [写入文件](#%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6)
-        - [生成json文件](#%E7%94%9F%E6%88%90json%E6%96%87%E4%BB%B6)
-    - [正则表达式](#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F)
-    - [多线程、多线程](#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E3%80%81%E5%A4%9A%E7%BA%BF%E7%A8%8B)
-        - [多线程+多进程处理文件](#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%9A%E8%BF%9B%E7%A8%8B%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6)
-    - [日志系统](#%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F)
+    - [获取文件夹中所有文件、文件夹](#获取文件夹中所有文件文件夹)
+    - [创建文件夹](#创建文件夹)
+    - [读取文件](#读取文件)
+        - [按行读取文件](#按行读取文件)
+        - [读取json文件](#读取json文件)
+        - [读取CSV文件](#读取csv文件)
+    - [写入文件](#写入文件)
+        - [生成json文件](#生成json文件)
+    - [正则表达式](#正则表达式)
+    - [多线程、多线程](#多线程多线程)
+        - [多线程+多进程处理文件](#多线程多进程处理文件)
+    - [异常处理](#异常处理)
+        - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
+    - [日志系统](#日志系统)
 
 <!-- /TOC -->
 
@@ -228,6 +232,23 @@ def assign_process():
 ```
 
 注：多进程不可使用一个文件对象，因为每个进程会拷贝一个文件对象，会导致各进程间写文件时相互覆盖。
+
+## 异常处理
+
+### 捕捉异常，打印异常栈
+
+``` python
+import traceback
+
+try:
+    # do something
+except Exception as e:
+    err_stack = traceback.format_exc()
+    print("doing something, but get error: %s" % e)
+    print('error stack:\n%s' % err_stack)
+finally:
+    # close something
+```
 
 ## 日志系统
 
