@@ -72,6 +72,8 @@ with urllib.request.urlopen(full_url) as response:
 AttributeError: 'NoneType' object has no attribute 'group'
 这个问题已经有人提了`https://github.com/ssut/py-googletrans/issues/88`
 
+或者替换成[py_translator](https://pypi.org/project/py-translator/)
+
 stackoverflow上提供了临时解决方案，`https://stackoverflow.com/a/52487148/2231702`需要自己修改源码修复。
 
 ``` python
