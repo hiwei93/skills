@@ -21,7 +21,7 @@ httplib | http.client
 md5 | hashlib.md5
 urllib.quote | urllib.parse.quote
 
-4. python3.x版本的Demo
+4. 更符合python3.x版本的Demo
 
 ``` python
 import hashlib
@@ -76,7 +76,7 @@ print(translate.text)
 注意：
 
 - 中国地区用户可指定`service_urls`为`translate.google.cn`（谷歌翻译的中国域名），不用翻墙就可以重用了。
-- 语言选项需要在[googletrans.LANGUAGES](https://py-googletrans.readthedocs.io/en/latest/#googletrans-languages)列表中，比如简体中文为`zh-cn`，如不满足条件会报错`ValueError: invalid destination language`
+- 语言选项需要在[googletrans.LANGUAGES](https://py-googletrans.readthedocs.io/en/latest/#googletrans-languages)列表中，比如简体中文为`zh-cn`（而不是`zh`），如不满足条件会报错`ValueError: invalid destination language`
 
 ### 使用时遇到的问题
 
@@ -87,7 +87,7 @@ print(translate.text)
 
 stackoverflow上提供了临时解决方案，`https://stackoverflow.com/a/52487148/2231702`需要自己修改源码修复:
 
-打开`py-googletrans`包中的`gtoken.py`文件，更新为以下代码：
+打开`py-googletrans`包中的`gtoken.py`文件，对应代码更新以下代码：
 
 ``` python
 RE_TKK = re.compile(r'TKK=eval\(\'\(\(function\(\)\{(.+?)\}\)\(\)\)\'\);',
@@ -129,3 +129,5 @@ Google | 翻译服务，收费，[详情](https://cloud.google.com/translate/pri
 Microsoft | 文本翻译，每月200万字符免费，超出后按照百万字符为单位收费，[详情](https://azure.microsoft.com/zh-cn/pricing/details/cognitive-services/translator-text-api/) | [文本翻译API文档](https://docs.microsoft.com/zh-cn/azure/cognitive-services/translator/)
 
 注：以上数据汇总日期为2018-10-21
+
+来源于：[mr-wolverine](https://github.com/mr-wolverine/skills/blob/master/python/Translate%20Service.md)
