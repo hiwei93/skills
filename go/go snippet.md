@@ -6,9 +6,9 @@
     - [时间类型格式化](#时间类型格式化)
     - [文件读取](#文件读取)
         - [去除文件BOM头](#去除文件bom头)
-    - [中文编码转换](#中文编码转换)
-        - [中文字符编码](#中文字符编码)
-        - [中文字符解码](#中文字符解码)
+    - [字符编解码](#字符编解码)
+        - [中文字符编解码](#中文字符编解码)
+        - [base64方式编解码](#base64方式编解码)
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
     - [反射（TODO）](#反射todo)
@@ -35,7 +35,8 @@ func main() {
 }
 ```
 
-> TODO: 说明为什么是 "2006-01-02"
+注意：golang使用特定时间`Mon Jan 2 15:04:05 MST 2006`作为格式化的时间
+<!-- 使用这个时间的原因 -->
 
 ## 文件读取
 
@@ -69,7 +70,9 @@ func ignoreUTFBOM(data []byte) []byte {
 }
 ```
 
-## 中文编码转换
+## 字符编解码
+
+### 中文字符编解码
 
 需要导入官方包：`https://godoc.org/golang.org/x/text/encoding`
 
@@ -77,56 +80,52 @@ func ignoreUTFBOM(data []byte) []byte {
 go get -u golang.org/x/text/encoding
 ```
 
-以下例子均以中文编码转换为例，其他语言的编码方法可以在[官方文档](https://godoc.org/golang.org/x/text/encoding#pkg-subdirectories)找到。
-
-### 中文字符编码
+以下例子均以中文编码（GB18030编码方式）转换为例，其他语言的编码方法可以在[官方文档](https://godoc.org/golang.org/x/text/encoding#pkg-subdirectories)找到。
 
 ``` go
 package main
 
-import (
-    "encoding/base64"
-    "golang.org/x/text/encoding/simplifiedchinese"
-)
+import "golang.org/x/text/encoding/simplifiedchinese"
 
-func encodeMessage(){
-    str := `文字信息`
-    encodeString, err := simplifiedchinese.GB18030.NewEncoder().String(str)
+func main(){
+    str := `字符信息`
+    // 对中文编码
+    encodeBytes, err := simplifiedchinese.GB18030.NewEncoder().Bytes([]byte(str))
     if err != nil {
         panic(err)
     }
-    encodeString = base64.StdEncoding.EncodeToString([]byte(encodeString))
-    println(encodeString)
-}
-```
-
-- 使用`simplifiedchinese.GB18030.NewEncoder().Writer(io.Writer)`可以对字节流编码。
-
-### 中文字符解码
-
-``` go
-package main
-
-import (
-    "encoding/base64"
-    "golang.org/x/text/encoding/simplifiedchinese"
-)
-
-func decodeMessage(){
-    str := `zsTX1tDFz6I=`
-    decodeBytes, err := base64.StdEncoding.DecodeString(str)
+    // 解码为中文字符
+    decodeBytes, err := simplifiedchinese.GB18030.NewDecoder().Bytes(encodeBytes)
     if err != nil {
         panic(err)
-    }
-    decodeBytes, err = simplifiedchinese.GB18030.NewDecoder().Bytes(decodeBytes)
-    if err != nil {
-        log.Fatalln(err)
     }
     println(string(decodeBytes))
 }
 ```
 
+- 使用`simplifiedchinese.GB18030.NewEncoder().Writer(io.Writer)`可以对字节流编码；
 - 使用`simplifiedchinese.GB18030.NewDecoder().Reader(io.Reader)`可以对字节流解码。
+
+### base64方式编解码
+
+``` go
+package main
+
+import "encoding/base64"
+
+func main(){
+    str := `字符信息`
+    // base64 encode
+    encodeString = base64.StdEncoding.EncodeToString([]byte(str))
+    println(encodeString)
+    // base64 decode
+    decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)
+    if err != nil {
+        panic(err)
+    }
+    println(string(decodeBytes))
+}
+```
 
 ## 异常处理
 
