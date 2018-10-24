@@ -4,7 +4,8 @@
 
 - [golang code snippet](#golang-code-snippet)
     - [时间类型格式化](#时间类型格式化)
-    - [文件读取](#文件读取)
+    - [IO操作](#io操作)
+        - [获取指定格式的文件名](#获取指定格式的文件名)
         - [去除文件BOM头](#去除文件bom头)
     - [字符编解码](#字符编解码)
         - [中文字符编解码](#中文字符编解码)
@@ -36,9 +37,41 @@ func main() {
 ```
 
 注意：golang使用特定时间`Mon Jan 2 15:04:05 MST 2006`作为格式化的时间
-<!-- 使用这个时间的原因 -->
+<!-- 使用这个时间的原因 https://stackoverflow.com/questions/20530327/origin-of-mon-jan-2-150405-mst-2006-in-golang-->
 
-## 文件读取
+## IO操作
+
+### 获取指定格式的文件名
+
+``` go
+package main
+
+import (
+    "fmt"
+    "path/filepath"
+)
+
+func matchPath() {
+    fileNames, err := filepath.Glob("*.*")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%q\n", fileNames)
+
+    pattern := "*.log"
+    for _, file := range fileNames {
+        matched, err := filepath.Match(pattern, file)
+        if err != nil {
+            panic(err)
+        }
+        fmt.Printf("file %s match pattern %s: %t\n", file, pattern, matched)
+    }
+}
+```
+
+- `filepath.Glob()`：返回所有匹配模式匹配字符串*pattern*的文件或者*nil*（如果没有匹配的文件）；
+- `filepath.Match()`：判断指定文件绝对路径是否与指定*pattern*匹配；
+- 具体的*pattern*使用参看[官方文档](https://golang.google.cn/src/path/filepath/match.go?s=1226:1284#L34)，或者查看博客[Golang学习 - path/filepath 包](http://www.mamicode.com/info-detail-1546088.html)
 
 ### 去除文件BOM头
 
