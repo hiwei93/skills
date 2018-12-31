@@ -10,12 +10,14 @@
 
    - [iTerm2](https://www.iterm2.com/)
    - iTerm2的颜色主题：[iTerm2-Color-Schemes](https://github.com/mbadolato/iTerm2-Color-Schemes)
+   - 基于Googel Material Design颜色系统的iTerm2的颜色主题：[iTerm2 Material Design](https://github.com/MartinSeeler/iterm2-material-design)（**推荐**）
 
 ### 命令行
 
 1. oh-my-zsh
 
    - zsh语法检查：[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+   - ZSH prompt: [pure](https://github.com/sindresorhus/pure) - 一个简洁的命令行提示（可以通过设置zsh主题为`ZSH_THEME="refined"`使用pure）（**推荐**）
 
 ## 2. 开发
 
