@@ -10,15 +10,25 @@
     - [读取文件](#读取文件)
         - [按行读取文件](#按行读取文件)
         - [读取json文件](#读取json文件)
-        - [读取CSV文件](#读取csv文件)
+        - [读取csv文件](#读取csv文件)
     - [写入文件](#写入文件)
         - [生成json文件](#生成json文件)
+        - [生成csv文件](#生成csv文件)
     - [正则表达式](#正则表达式)
+        - [注意](#注意)
+        - [正则`match()`和`search()`的不同](#正则match和search的不同)
+    - [字符串](#字符串)
+        - [判断字符串中是否包含中文](#判断字符串中是否包含中文)
     - [多线程、多线程](#多线程多线程)
         - [多线程+多进程处理文件](#多线程多进程处理文件)
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
     - [日志系统](#日志系统)
+    - [网络](#网络)
+        - [发送GET请求](#发送get请求)
+    - [链接数据库](#链接数据库)
+        - [链接mongodb](#链接mongodb)
+        - [`ObjectId`和`string id`相互转换](#objectid和string-id相互转换)
 
 <!-- /TOC -->
 
@@ -63,6 +73,8 @@ with open(file_path, mode="r", encoding="utf-8") as f:
 
    - 当`open()`的参数`mode=r`，则是读取的**字符**个数；
    - 当`open()`的参数`mode=rb`，则是读取的**字节**个数。
+
+3. 编码方式为`UTF-8 with BOM`的文件，`encoding`参数为`utf-8-sig`。
 
 ### 按行读取文件
 
@@ -109,14 +121,23 @@ with open(json_path, mode="r", encoding="utf-8") as f:
     content = json.load(f)
 ```
 
-### 读取CSV文件
+### 读取csv文件
 
 [csv doc](https://docs.python.org/3.5/library/csv.html#id3)
 
 1. 需要导入包：`csv`;
 2. `open`函数需要设置参数`newline=''`;
 3. `csv.reader(f, dialect='excel-tab')`设置方言（dialect）为excel-tab可以读取以tab键为分割的txt文件；
-4. `csv.DictReader(f)`读取文件，可以根据header获取相应列的内容
+4. `csv.DictReader(f)`读取文件，可以根据header获取相应列的内容。
+
+``` python
+import csv
+with open(csv_path, mode='r', encoding='utf-8', newline='') as f:
+    reader = csv.reader(f)
+    header = next(reader) # 获取表头信息，有表头的时候使用
+    for row in reader:
+        print(row[0])
+```
 
 ## 写入文件
 
@@ -144,6 +165,15 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
 - 设置`json.dump()`方法的参数`ensure_ascii=False`，就可以正常导出json中的中文（或者其他非ASCII编码的字符）了。
 - 设置`json.dump()`方法的参数`separators=(',', ':')`，就可以将导出紧凑的json格式了。
 - 设置`json.dump()`方法的参数`indent=4`，就可以将导出进行缩进格式化后的json的了。
+
+### 生成csv文件
+
+``` python
+import csv
+with open(csv_path, mode='w', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerows([['data1', 'data2', 'data3']])
+```
 
 ## 正则表达式
 
@@ -174,6 +204,28 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
     m = re.search("remove_this", email)
     email[:m.start()] + email[m.end():] # 'tony@tiger.net'
     ```
+
+### 注意
+
+### 正则`match()`和`search()`的不同
+
+- `match()`方法从字符串头部开始匹配，如果第一个字符不匹配则该字符串都不匹配；
+- `search()`方法从字符串中查找匹配的字符，并给出第一个匹配子串的位置。
+
+参看：`https://docs.python.org/3.5/library/re.html#search-vs-match`
+
+## 字符串
+
+### 判断字符串中是否包含中文
+
+``` python
+import re
+chinese_pattern = re.compile(r'[\u4e00-\u9fa5]+')
+
+string = '有中文'
+if chinese_pattern.search(string):
+    print(string + '包含中文')
+```
 
 ## 多线程、多线程
 
@@ -262,3 +314,49 @@ finally:
     ```
 
     打印日志格式如：`2018/07/06 11:54:48 AM - MainThread - INFO - message`
+
+## 网络
+
+### 发送GET请求
+
+## 链接数据库
+
+### 链接mongodb
+
+- 需要下载[`pymongo`](https://api.mongodb.com/python/current/index.html#)作为python链接数据库的驱动。
+
+``` python
+from pymongo import MongoClient
+client = MongoClient(host=host, port=port) # type of port is int
+db = client[db_name]
+# 权限验证则
+db.authenticate(name=username, password=password, mechanism='SCRAM-SHA-1')
+collection = db[collection_name]
+results = collection.find({})
+for result in results:
+    print(str(result['_id']))
+```
+
+或者，可以：
+
+``` python
+client = MongoClient(host=host,
+                    port=port,
+                    username=username,
+                    password=password,
+                    authSource=db_name,
+                    authMechanism='SCRAM-SHA-1')
+db = client[db_name]
+collection = db[collection_name]
+results = collection.find({})
+for result in results:
+    print(str(result['_id']))
+```
+
+### `ObjectId`和`string id`相互转换
+
+``` python
+import bson
+obj_id = bson.ObjectId(string_id) # string_id -> ObjectId
+string_id = str(obj_id) # ObjectId -> string_id
+```
