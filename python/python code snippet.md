@@ -240,7 +240,8 @@ with open(csv_path, mode='w', encoding='utf-8') as f:
     name = "Fred"
     "His name is %s" % name
     ```
-    - 有关
+- 有关`%`操作符和`str.format()`方法的讨论：[Python string formatting: % vs. .format](https://stackoverflow.com/questions/5082452/python-string-formatting-vs-format/)
+- 有关字符串格式化的介绍：[Formatted Output](https://www.python-course.eu/python3_formatted_output.php)
 
 ### 判断字符串中是否包含中文
 
