@@ -7,6 +7,7 @@
     - [IO操作](#io操作)
         - [获取指定格式的文件名](#获取指定格式的文件名)
         - [去除文件BOM头](#去除文件bom头)
+        - [读取csv文件](#读取csv文件)
     - [字符编解码](#字符编解码)
         - [中文字符编解码](#中文字符编解码)
         - [base64方式编解码](#base64方式编解码)
@@ -101,6 +102,67 @@ func ignoreUTFBOM(data []byte) []byte {
     }
     return data
 }
+```
+
+更为简单的方式：
+
+``` go
+func trapBOM(fileBytes []byte) []byte {
+    trimmedBytes := bytes.Trim(fileBytes, "\xef\xbb\xbf")
+    return trimmedBytes
+}
+```
+
+- 参看[Reading files with a BOM in Go](https://stackoverflow.com/questions/21371673/reading-files-with-a-bom-in-go)
+
+以上两种方法的缺点相同，都需要将文件全部读到内存中，无法处理很大的文件。
+
+### 读取csv文件
+
+``` go
+package main
+
+import (
+    "encoding/csv"
+    "fmt"
+    "log"
+)
+
+func readCsv(csvPath string) {
+    file, err := os.OpenFile(csvPath, os.O_RDONLY, 0600)
+    if err != nil {
+        log.Panic(err)
+    }
+    csvReader := csv.NewReader(file)
+    line := 0
+    for {
+        line++
+        row, err := csvReader.Read()
+        if err == io.EOF {
+            break
+        }
+        if err != nil {
+            log.Panicf("execute file line [%d], get error %s", line, err)
+        }
+        // if csv file has header, then skip it
+        if line == 1 {
+            continue
+        }
+        log.Printf("%d row is %v", line, row)
+    }
+    err = file.Close()
+    if err != nil {
+        log.Panic(err)
+    }
+}
+```
+
+读取特殊分隔符的文件，比如使用`\t`作为分隔符：
+
+``` go
+csvReader := csv.NewReader(file)
+csvReader.Comma = '\t'
+csvReader.TrimLeadingSpace = true
 ```
 
 ## 字符编解码
