@@ -18,6 +18,7 @@
         - [注意](#注意)
         - [正则`match()`和`search()`的不同](#正则match和search的不同)
     - [字符串](#字符串)
+        - [字符串格式化](#字符串格式化)
         - [判断字符串中是否包含中文](#判断字符串中是否包含中文)
     - [多线程、多线程](#多线程多线程)
         - [多线程+多进程处理文件](#多线程多进程处理文件)
@@ -215,6 +216,31 @@ with open(csv_path, mode='w', encoding='utf-8') as f:
 参看：`https://docs.python.org/3.5/library/re.html#search-vs-match`
 
 ## 字符串
+
+### 字符串格式化
+
+1. [python format string syntax](https://docs.python.org/2/library/string.html#format-examples)
+
+    ``` python
+    '{1} {0}'.format(*["first", "last"]) # unpacking argument sequence
+    ```
+
+   - 上例子中`*`是解包操作；
+
+2. [Formatted string literals](https://docs.python.org/3/reference/lexical_analysis.html#f-strings) (f-string)
+
+    ``` python
+    name = "Fred"
+    f"He said his name is {name}."
+    ```
+
+3. [printf-style String Formatting](https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting) (`%` format)
+
+    ``` python
+    name = "Fred"
+    "His name is %s" % name
+    ```
+    - 有关
 
 ### 判断字符串中是否包含中文
 
