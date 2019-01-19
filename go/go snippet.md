@@ -157,13 +157,39 @@ func readCsv(csvPath string) {
 }
 ```
 
-读取特殊分隔符的文件，比如使用`\t`作为分隔符：
+读取特殊分隔符的文件，比如使用`\t`作为分隔符，需要添加配置：
 
 ``` go
 csvReader := csv.NewReader(file)
 csvReader.Comma = '\t'
-csvReader.TrimLeadingSpace = true
 ```
+
+注意：
+
+当`csv.Reader`的参数`TrimLeadingSpace`设为`true`时，连续的`\t`分隔符会被忽略，如下例：
+
+``` go
+in := "first_name\tlast_name\tusername\thappy\nRob\tPike\trob\ttrue\nKen\t\t\tfalse\nRobert\tGriesemer\tgri\ttrue"
+r := csv.NewReader(strings.NewReader(in))
+r.Comma = '\t'
+r. TrimLeadingSpace = true
+
+for {
+    record, err := r.Read()
+    if err == io.EOF {
+        break
+    }
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("%#v\n", record)
+}
+```
+
+会产生异常：`record on line 3: wrong number of fields`
+
+但是`,;，`等分隔符不会产生这样的问题。
 
 ## 字符编解码
 
