@@ -20,6 +20,8 @@
 
 [ubuntu安装和查看已安装](http://www.cnblogs.com/forward/archive/2012/01/10/2318483.html)
 
+> 还是使用命令行好，看得见安装过程。
+
 ### 解压安装
 
 解压：`sudo tar -zxvf ideaIU-2016.3.3-no-jdk.tar.gz -C /opt`
@@ -31,7 +33,23 @@ sudo dpkg -i <file>.deb
 sudo apt-get install -f # Install dependencies
 ```
 
-> 还是使用命令行好，看得见安装过程。
+#### 安装修复
+
+安装过程中出现错误
+
+先修复
+
+``` bash
+sudo apt --fix-broken install
+```
+
+然后，再次安装
+
+### 卸载软件
+
+#### 彻底卸载
+
+`https://zhidao.baidu.com/question/344235425.html`
 
 ### 更换Python版本
 
@@ -50,6 +68,8 @@ Ubuntu自动安装几个版本的Python，但是默认使用2.7版本，要想�
 这样就可以使用Python3了。
 
 > 若使用vscode进行Python开发，则需指定Python：`"python.pythonPath": "/usr/bin/python3.5"`
+
+注意：最好的方式应该是使用虚拟环境virtualenv或者Anaconda进行Python版本的管理
 
 ### 常用软件安装资料
 
@@ -76,6 +96,13 @@ Ubuntu自动安装几个版本的Python，但是默认使用2.7版本，要想�
 8. [docky](http://www.go-docky.com/)
 
    - Mac OS风格的dock
+
+9. GoldenDict - [官网](http://goldendict.org/) - [github](https://github.com/goldendict/goldendict)
+
+   - 非常强大的开源词典工具
+   - `http://os.51cto.com/art/201109/291620.htm`
+   - `https://blog.csdn.net/www_helloworld_com/article/details/85019862`
+   - `http://forum.ubuntu.org.cn/viewtopic.php?f=95&t=265588`
 
 ### 可以更换成Mac的默认字体monaco
 
@@ -108,27 +135,28 @@ Ubuntu自动安装几个版本的Python，但是默认使用2.7版本，要想�
 
    会报字体缺失的错误：
 
-  ![WPS错误提示](./resource/wps_error.png)
+   ![WPS错误提示](./resource/wps_error.png)
 
-  解决方案：
+   解决方案：
 
-     - 从Window `c:/Windows/Fonts`中拷贝所需字体（也可以从网上下载缺少的字体）到Ubuntu `usr/share/fonts/wps`中；
-     - 执行以下命令,生成字体的索引信息：
+   - 从Window `c:/Windows/Fonts`中拷贝所需字体（也可以从网上下载缺少的字体）到Ubuntu `usr/share/fonts/wps`中；
+   - 执行以下命令,生成字体的索引信息：
 
-      ``` bash
-      sudo mkfontscale
+        ``` bash
+        sudo mkfontscale
 
-      sudo mkfontdir
-      ```
+        sudo mkfontdir
+        ```
 
-     - 运行fc-cache命令更新字体缓存。
+   - 运行fc-cache命令更新字体缓存。
 
-     ``` bash
-     sudo fc-cache
-     ```
+        ``` bash
+        sudo fc-cache
+        ```
 
-> tips: 可以讲需要的中文字体一起复制到Ubuntu，[Windows中常见的中文字体的中英对照](https://zhidao.baidu.com/question/157296328.html)。
-> 还需要注意：[部分数学公式显示支持](http://community.wps.cn/wiki/%E9%83%A8%E5%88%86%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F%E6%98%BE%E7%A4%BA%E6%94%AF%E6%8C%81)
+   > **tips**: 可以讲需要的中文字体一起复制到Ubuntu，[Windows中常见的中文字体的中英对照](https://zhidao.baidu.com/question/157296328.html)。
+   >
+   > 还需要注意：[部分数学公式显示支持](http://community.wps.cn/wiki/%E9%83%A8%E5%88%86%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F%E6%98%BE%E7%A4%BA%E6%94%AF%E6%8C%81)
 
 ### 个人设置
 
