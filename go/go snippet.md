@@ -4,6 +4,7 @@
 
 - [golang code snippet](#golang-code-snippet)
     - [时间类型格式化](#时间类型格式化)
+    - [计算程序运行时间](#计算程序运行时间)
     - [IO操作](#io操作)
         - [获取指定格式的文件名](#获取指定格式的文件名)
         - [去除文件BOM头](#去除文件bom头)
@@ -14,7 +15,11 @@
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
     - [反射（TODO）](#反射todo)
-    - [并发（TODO）](#并发todo)
+    - [并发](#并发)
+        - [限制并发数量](#限制并发数量)
+        - [等待所有线程运行完毕](#等待所有线程运行完毕)
+        - [注意：循环变量快照问题（TODO）](#注意循环变量快照问题todo)
+        - [注意：goroutine泄露（TODO）](#注意goroutine泄露todo)
     - [网络](#网络)
         - [根据url获取返回资源](#根据url获取返回资源)
 
@@ -39,6 +44,28 @@ func main() {
 
 注意：golang使用特定时间`Mon Jan 2 15:04:05 MST 2006`作为格式化的时间
 <!-- 使用这个时间的原因 https://stackoverflow.com/questions/20530327/origin-of-mon-jan-2-150405-mst-2006-in-golang-->
+
+## 计算程序运行时间
+
+``` go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func expensiveCall() {} // 目标程序
+
+func main() {
+    t0 := time.Now()
+    expensiveCall()
+    t1 := time.Now()
+    fmt.Printf("The call took %v to run.\n", t1.Sub(t0))
+}
+```
+
+参看：`https://golang.google.cn/pkg/time/#example_Duration`
 
 ## IO操作
 
@@ -276,7 +303,64 @@ func task() {
 
 ## 反射（TODO）
 
-## 并发（TODO）
+## 并发
+
+1. 主函数返回时，所有的goroutine都会被直接打断，程序退出。
+
+### 限制并发数量
+
+``` go
+package main
+
+func main() {
+    var timers = make(chan struct{}, 100)
+
+    for {
+        timers <- struct{}{}
+        go func() {
+            // do something
+            <- timers
+        }()
+    }
+}
+```
+
+注：异步方法中`timers`资源的释放应该放在`defer`中，否则可能会因为程序错误导致`timers`资源没有释放而造成的阻塞：
+
+``` go
+defer func() {
+    <- timers
+}()
+```
+
+### 等待所有线程运行完毕
+
+``` go
+package main
+
+import "sync"
+
+func main() {
+    var wg sync.WaitGroup
+    for i := 0; i < 10; i ++ {
+        wg.Add(1)
+        // worker
+        go func() {
+            defer wg.Done()
+            // do something
+        }()
+    }
+
+    // closer
+    go func() {
+        wg.Wait()
+    }()
+}
+```
+
+### 注意：循环变量快照问题（TODO）
+
+### 注意：goroutine泄露（TODO）
 
 ## 网络
 
