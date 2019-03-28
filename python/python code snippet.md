@@ -15,7 +15,6 @@
         - [生成json文件](#生成json文件)
         - [生成csv文件](#生成csv文件)
     - [正则表达式](#正则表达式)
-        - [注意](#注意)
         - [正则`match()`和`search()`的不同](#正则match和search的不同)
     - [字符串](#字符串)
         - [字符串格式化](#字符串格式化)
@@ -27,6 +26,8 @@
     - [日志系统](#日志系统)
     - [网络](#网络)
         - [发送GET请求](#发送get请求)
+        - [发送POST请求](#发送post请求)
+            - [requests包发送POST请求](#requests包发送post请求)
     - [链接数据库](#链接数据库)
         - [链接mongodb](#链接mongodb)
         - [`ObjectId`和`string id`相互转换](#objectid和string-id相互转换)
@@ -206,8 +207,6 @@ with open(csv_path, mode='w', encoding='utf-8') as f:
     email[:m.start()] + email[m.end():] # 'tony@tiger.net'
     ```
 
-### 注意
-
 ### 正则`match()`和`search()`的不同
 
 - `match()`方法从字符串头部开始匹配，如果第一个字符不匹配则该字符串都不匹配；
@@ -240,6 +239,7 @@ with open(csv_path, mode='w', encoding='utf-8') as f:
     name = "Fred"
     "His name is %s" % name
     ```
+
 - 有关`%`操作符和`str.format()`方法的讨论：[Python string formatting: % vs. .format](https://stackoverflow.com/questions/5082452/python-string-formatting-vs-format/)
 - 有关字符串格式化的介绍：[Formatted Output](https://www.python-course.eu/python3_formatted_output.php)
 
@@ -344,7 +344,78 @@ finally:
 
 ## 网络
 
+可以使用python的原生包：
+
+- Python document: [HOWTO Fetch Internet Resources Using The urllib Package](https://docs.python.org/3.6/howto/urllib2.html)
+
+也可以使用`requests`包:
+
+- requests document：[Quickstart](http://docs.python-requests.org/en/latest/user/quickstart/#quickstart)
+
 ### 发送GET请求
+
+``` python
+import json
+import urllib.parse
+import urllib.request
+
+url = 'https://www.example.com'
+values = {'name' : 'Michael Foord',
+          'location' : 'Northampton',
+          'language' : 'Python' }
+url_values = urllib.parse.urlencode(values)
+full_url = url + '?' + url_values
+req = urllib.request.Request(full_url)
+req.add_header('Authorization', '') # add header
+with urllib.request.urlopen(req) as response:
+  resp_data = response.read().decode('utf-8')
+  results = json.loads(resp_data) # for json results
+  print(results)
+```
+
+### 发送POST请求
+
+[stackoverflow: How to Send Post Request](https://stackoverflow.com/questions/11322430/how-to-send-post-request)
+
+``` python
+import json
+import urllib.parse
+import urllib.request
+
+url = 'https://www.example.com'
+values = {'name' : 'Michael Foord',
+          'location' : 'Northampton',
+          'language' : 'Python' }
+data = urllib.parse.urlencode(values)
+data = data.encode('utf-8') # data should be bytes
+req = urllib.request.Request(url, data=data, method='POST')
+req.add_header('Content-Type', 'application/json')
+with urllib.request.urlopen(req) as response:
+    resp_data = response.read().decode('utf-8')
+    results = json.loads(resp_data) # for json results
+    print(results)
+```
+
+// TODO 发送from表格的数据
+
+// TODO 发送文件
+
+#### requests包发送POST请求
+
+requests document: [More complicated POST requests](http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests)
+
+``` python
+import requests
+import json
+
+url = 'https://www.example.com'
+values = {'name' : 'Michael Foord',
+          'location' : 'Northampton',
+          'language' : 'Python' }
+headers = {'user-agent': 'my-app/0.0.1'}
+r = requests.post(url, json=payload, headers=headers)
+print(r.text)
+```
 
 ## 链接数据库
 
