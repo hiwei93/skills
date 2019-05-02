@@ -28,5 +28,7 @@
 3. col：过滤控制字符
 4. colrm：滤掉指定的行
 5. grep：查找文件里符合条件的字符串
-6. sed：依照script的指令，来处理、编辑文本文件
-7. awk：一个强大的文本分析工具
+6. sed：强大的流式编辑器
+   - 非常友好的入门文章：[Understanding sed – practical guide](https://devarea.com/understanding-sed-practical-guide/#.XMqBPUgz)
+7. awk：可编程的流式编辑器
+   - 非常友好的入门文章：[Understanding awk - practical guide](https://devarea.com/understanding-awk-practical-guide/#.XMkbxEgza00)

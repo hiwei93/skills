@@ -41,8 +41,16 @@ grep target_string example.txt > other_file.txt
 
 ### 计算文件行数
 
+方法1 - wc
+
 ``` bash
 wc -l filename
+```
+
+方法2 - awk
+
+``` bash
+awk 'END {print NR }' filename
 ```
 
 ## 将文件分割成若干份
@@ -75,4 +83,12 @@ cat file2.txt >> file1.txt
 
 ``` bash
 sed 's/string1/string2/g' file1.txt > file2.txt
+```
+
+<!-- TODO: Linux 和 mac 系统中的不同 -->
+
+## 删除空行
+
+``` bash
+sed '/^$/d' filename
 ```
