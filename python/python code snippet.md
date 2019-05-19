@@ -313,6 +313,17 @@ dt = datetime.strptime(date_str, "%Y-%m-%d %I:%M %p")
 
 - [格式化说明](https://docs.python.org/3.6/library/datetime.html#strftime-and-strptime-behavior)
 
+### 时区
+
+``` python
+from datetime import datetime, timezone, timedelta
+
+# UTC东8区， 即北京时间
+dt = datetime.now(tz=timezone(timedelta(hours=8)))
+
+dt.tzname() # 'UTC+08:00'
+```
+
 TODO different between datatime & time
 
 ## 并发编程
