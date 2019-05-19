@@ -19,8 +19,13 @@
     - [字符串](#字符串)
         - [字符串格式化](#字符串格式化)
         - [判断字符串中是否包含中文](#判断字符串中是否包含中文)
-    - [多线程、多线程](#多线程多线程)
+    - [处理时间](#处理时间)
+        - [时间转换为格式字符串](#时间转换为格式字符串)
+        - [字符串格式化为时间](#字符串格式化为时间)
+    - [并发编程](#并发编程)
         - [多线程+多进程处理文件](#多线程多进程处理文件)
+        - [限制并发数量](#限制并发数量)
+    - [协程](#协程)
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
     - [日志系统](#日志系统)
@@ -28,9 +33,17 @@
         - [发送GET请求](#发送get请求)
         - [发送POST请求](#发送post请求)
             - [requests包发送POST请求](#requests包发送post请求)
+    - [面向对象](#面向对象)
+        - [常用方法](#常用方法)
+        - [对象判等](#对象判等)
     - [链接数据库](#链接数据库)
         - [链接mongodb](#链接mongodb)
         - [`ObjectId`和`string id`相互转换](#objectid和string-id相互转换)
+        - [更新数据](#更新数据)
+        - [排序](#排序)
+        - [与json转换](#与json转换)
+        - [获取所有字段名称用于导出数据](#获取所有字段名称用于导出数据)
+    - [测试](#测试)
 
 <!-- /TOC -->
 
@@ -254,7 +267,61 @@ if chinese_pattern.search(string):
     print(string + '包含中文')
 ```
 
-## 多线程、多线程
+## 处理时间
+
+``` python
+from datetime import datetime
+import time
+
+# 获取当前时间
+dt = datetime.now()
+
+# 获取时间戳
+t = dt.timestamp()
+# or
+t = time.time()
+
+# 时间戳转换成datetime
+dt = datetime.fromtimestamp(t)
+```
+
+### 时间转换为格式字符串
+
+``` python
+from datetime import datetime
+
+dt = datetime.now()
+
+# 转换成ISO 8601标准字符串
+date_str = dt.isoformat()
+
+# 自定义转换
+date_str = dt.strftime("%Y-%m-%dT %H:%M:%S")
+```
+
+- [datetime.isoformat()文档](https://docs.python.org/3.6/library/datetime.html#datetime.datetime.isoformat)
+
+### 字符串格式化为时间
+
+``` python
+from datetime import datetime
+
+date_str = '2019-05-19 02:17 PM'
+
+dt = datetime.strptime(date_str, "%Y-%m-%d %I:%M %p")
+```
+
+- [格式化说明](https://docs.python.org/3.6/library/datetime.html#strftime-and-strptime-behavior)
+
+TODO different between datatime & time
+
+## 并发编程
+
+TODO: need more details
+并发编程先要分析任务是计算量大还是读写（IO）量大：
+
+- 读写量大的话推荐使用线程或者异步；
+- 计算量大的话推荐使用进程，但是注意进程数量和cpu核数的平衡，如果进程数量过多，会导致CPU频繁调度，效率会变低；
 
 ### 多线程+多进程处理文件
 
@@ -311,6 +378,73 @@ def assign_process():
 ```
 
 注：多进程不可使用一个文件对象，因为每个进程会拷贝一个文件对象，会导致各进程间写文件时相互覆盖。
+
+### 限制并发数量
+
+使用`multiprocessing.Queue`控制并发数量
+
+``` python
+import threading
+from multiprocessing import Process, Queue
+
+def get_geo_info(org: str, q: Queue, token_q: Queue):
+    try:
+        geo = get_geo_info_by_org(org)
+    except Exception as e:
+        print(f'get geo of org [{org}] failed')
+        print(e)
+    else:
+        q.put({'name': org, 'geo': geo})
+    finally:
+        token_q.get()
+
+def assign_org_task(result_q: Queue):
+    file_path = '/Users/zhangwei/tsinghua/assignment/20/coursemate/input/orgs.txt'
+    org_names = [x['name'] for x in get_all_geo_info()]
+    token_q = Queue(10)  # 限制线程数量为10
+    thread_pool = []
+    count = 1
+    for org in org_name_generator(file_path):
+        if org in org_names:
+            continue
+        token_q.put(1)
+        print(f'executing {count}')
+        t = threading.Thread(target=get_geo_info, args=(org, result_q, token_q))
+        t.start()
+        thread_pool.append(t)
+        count += 1
+    for thread in thread_pool:
+        thread.join()
+    result_q.put(None) # stop consumer
+
+def consumer(result_q: Queue):
+    output = '/Users/zhangwei/tsinghua/assignment/20/coursemate/output/geo_info.json'
+    with open(output, mode='a', encoding='utf-8') as f:
+        while True:
+            item = result_q.get()
+            if item is None:
+                break
+            f.write(json.dumps(item, ensure_ascii=False) + '\n')
+
+if __name__ == '__main__':
+    result_q = Queue()
+    p1 = Process(target=assign_org_task, args=(result_q,))
+    p1.start()
+    p2 = Process(target=consumer, args=(result_q,))
+    p2.start()
+    p1.join()
+    p2.join()
+```
+
+TODO 也可以使用pool限制进程数量
+
+## 协程
+
+[Python实战异步爬虫(协程)+分布式爬虫(多进程)](https://blog.csdn.net/SL_World/article/details/86633611)
+
+[Python异步IO之协程(一):从yield from到async的使用](https://blog.csdn.net/SL_World/article/details/86597738)
+
+[深入理解yield](http://www.cnblogs.com/coderzh/articles/1202040.html)
 
 ## 异常处理
 
@@ -417,6 +551,22 @@ r = requests.post(url, json=payload, headers=headers)
 print(r.text)
 ```
 
+## 面向对象
+
+### 常用方法
+
+The getattr(obj, name[, default]) − to access the attribute of object.
+
+The hasattr(obj,name) − to check if an attribute exists or not.
+
+The setattr(obj,name,value) − to set an attribute. If attribute does not exist, then it would be created.
+
+The delattr(obj, name) − to delete an attribute.
+
+### 对象判等
+
+==、is、in区别
+
 ## 链接数据库
 
 ### 链接mongodb
@@ -458,3 +608,19 @@ import bson
 obj_id = bson.ObjectId(string_id) # string_id -> ObjectId
 string_id = str(obj_id) # ObjectId -> string_id
 ```
+
+### 更新数据
+
+replace_one
+
+### 排序
+
+### 与json转换
+
+from bson import json_util
+
+### 获取所有字段名称用于导出数据
+
+## 测试
+
+[如何对你的Python代码进行基准测试](https://www.cnblogs.com/meishandehaizi/p/5863234.html)
