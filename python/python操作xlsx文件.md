@@ -1,16 +1,15 @@
 # python操作xlsx文件
 
-[Working with Excel Files in Python](http://www.python-excel.org/)
-
 在网上浏览了一下，比较了一下，python使用`openpyxl`库处理xlsx文件是比较好的选择。
 
-[openpyxl document](http://openpyxl.readthedocs.io/en/latest/index.html)
+- [Working with Excel Files in Python](http://www.python-excel.org/)
+- [openpyxl document](http://openpyxl.readthedocs.io/en/latest/index.html)
 
 目录：
 
 <!-- TOC -->
 
-- [python操作xlsx文件心得](#python操作xlsx文件心得)
+- [python操作xlsx文件](#python操作xlsx文件)
     - [安装](#安装)
     - [基本使用](#基本使用)
         - [读取文件](#读取文件)
@@ -33,6 +32,7 @@
             - [填充单元格](#填充单元格)
             - [保存更改](#保存更改)
             - [例子](#例子)
+        - [从xlsx中导入数据](#从xlsx中导入数据)
     - [常用方法](#常用方法)
         - [workbook module常用属性](#workbook-module常用属性)
         - [worksheet module 常用属性](#worksheet-module-常用属性)
@@ -82,14 +82,14 @@ wb = load_workbook('file_name')
    ws = wb['sheet_name']
    ```
 
-1. 遍历sheet获取
+2. 遍历sheet获取
 
    ```  python
    for sheet in wb:
        ... ...
    ```
 
-1. 操作完成后注意关闭workbook: `wb.close()`
+3. 操作完成后注意关闭workbook: `wb.close()`
 
 ### 操作数据
 
@@ -258,6 +258,30 @@ wb.close() // maybe Unnecessary
 ```
 
 - [styles.fills module](https://openpyxl.readthedocs.io/en/latest/api/openpyxl.styles.fills.html#module-openpyxl.styles.fills)
+
+### 从xlsx中导入数据
+
+``` python
+from openpyxl import load_workbook
+
+def import_data(file_path: str, sheets=[]):
+    wb = load_workbook(file_path)
+    if not sheets:
+        sheets = wb.sheetnames
+    for sheet in sheets:
+        print(f'--- begin execute [{sheet}]')
+        ws = wb[sheet]
+        rows = ws.values
+        header = next(rows)
+        print(f'|-- header: {header}')
+        user = dict()
+        for row in rows:
+            for i, h in enumerate(header):
+                if h == '姓名'：
+                    user['name'] = row[i]
+                ......
+        # save user or do further operations
+```
 
 ## 常用方法
 
