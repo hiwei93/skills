@@ -127,13 +127,13 @@ wb = load_workbook('file_name')
     sheet['A1:D4']  # 获取4行4列
     ```
 
-    - TODO：通过这样的方式得到的元素是个二元组
+    - 注意：通过这样的方式得到的元素是个二元组
 
 #### 操作cell
 
 1. 获取值: `cell.value`
 
-   > 注意：空表格 `cell.value != None`
+   > 注意：空单元格值为`None`
 
 2. 获取cell所在行: `cell.row`
 
@@ -257,40 +257,41 @@ wb.save(path)
 wb.close() // maybe Unnecessary
 ```
 
+- [styles.fills module](https://openpyxl.readthedocs.io/en/latest/api/openpyxl.styles.fills.html#module-openpyxl.styles.fills)
+
 ## 常用方法
 
 ### workbook module常用属性
 
-1. sheetnames：获取工作表名称列表
+1. `sheetnames`：获取工作表名称列表
 
 ### worksheet module 常用属性
 
-1. dimensions：返回包含数据的所有单元格的最小边界范围
+1. `dimensions`：返回包含数据的所有单元格的最小边界范围
 
    - TODO: 不清楚会不会自动忽略空值行
 
-2. max_column：包含数据的最大列数
+2. `max_column`：包含数据的最大列数
 
-3. max_row：包含数据的最大行数
+3. `max_row`：包含数据的最大行数
 
-4. values：按行获取所有单元格的值，返回一个生成器
+4. `values`：按行获取所有单元格的值，返回一个生成器
 
 ### cell model 常用属性
 
-1. row：单元格的行号（从1开始）
+1. `row`：单元格的行号（从1开始）
 
-2. column：单元格的列号（从A开始）
+2. `column`：单元格的列索引字母（从A开始）
 
-3. col_idx：
-The numerical index of the column
+3. `col_idx`：单元格的列号（从1开始）
 
-4. column_letter：单元格的字母索引（A, B, ...）
+4. `column_letter`：单元格的字母索引（A, B, ...）
 
-5. coordinate: 单元格的坐标（比如：A1）
+5. `coordinate`: 单元格的坐标（比如：A1）
 
-6. parent：单元格所在的worksheet
+6. `parent`：单元格所在的worksheet
 
-7. data_type：单元格值的类型
+7. `data_type`：单元格值的类型
 
    ``` python
    TYPE_STRING = 's'
