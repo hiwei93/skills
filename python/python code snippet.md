@@ -19,12 +19,16 @@
     - [字符串](#字符串)
         - [字符串格式化](#字符串格式化)
         - [判断字符串中是否包含中文](#判断字符串中是否包含中文)
+        - [特殊字符处理](#特殊字符处理)
     - [处理时间](#处理时间)
         - [时间转换为格式字符串](#时间转换为格式字符串)
         - [字符串格式化为时间](#字符串格式化为时间)
+        - [时区](#时区)
     - [并发编程](#并发编程)
         - [多线程+多进程处理文件](#多线程多进程处理文件)
         - [限制并发数量](#限制并发数量)
+            - [使用`multiprocessing.Queue`控制并发数量](#使用multiprocessingqueue控制并发数量)
+            - [使用pool限制进程数量](#使用pool限制进程数量)
     - [协程](#协程)
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
@@ -42,8 +46,11 @@
         - [更新数据](#更新数据)
         - [排序](#排序)
         - [与json转换](#与json转换)
+        - [正则查询](#正则查询)
         - [获取所有字段名称用于导出数据](#获取所有字段名称用于导出数据)
     - [测试](#测试)
+        - [单元测试](#单元测试)
+        - [基准测试](#基准测试)
 
 <!-- /TOC -->
 
@@ -54,12 +61,17 @@ import os
 with os.scandir(path) as it:
     for entry in it:
         if entry.is_file() and entry.name.endswith('.xlsx'):
+            # do something
 ```
 
 `os.scandir()`方法返回一个`DirEntry`对象的迭代器，通过`DirEntry`对象可以获取文件或文件夹的属性。
 
 - 查看 [`os.scandir()`](https://docs.python.org/3.5/library/os.html?highlight=scandir#os.scandir)
 - 查看 [`os.DirEntry`](https://docs.python.org/3.5/library/os.html?highlight=scandir#os.DirEntry)
+
+注意：文档中有说明
+
+> Using `scandir()` instead of `listdir()` can significantly increase the performance of code that also needs file type or file attribute information, because DirEntry objects expose this information if the operating system provides it when scanning a directory.
 
 ## 创建文件夹
 
@@ -187,7 +199,8 @@ with open('./output/' + file_name, 'w', encoding="utf-8") as f:
 import csv
 with open(csv_path, mode='w', encoding='utf-8') as f:
     writer = csv.writer(f)
-    writer.writerows([['data1', 'data2', 'data3']])
+    writer.writerow(['data1', 'data2', 'data3']) # 单行写入
+    writer.writerows([['data1', 'data2', 'data3']]) # 多行写入
 ```
 
 ## 正则表达式
@@ -267,6 +280,17 @@ if chinese_pattern.search(string):
     print(string + '包含中文')
 ```
 
+### 特殊字符处理
+
+`\xa0` 字符处理
+
+- `https://stackoverflow.com/questions/10993612/python-removing-xa0-from-string`
+- `https://www.cnblogs.com/BlackStorm/p/6359005.html`
+
+TODO `\u3000` 字符处理
+
+TODO: 字符串中带有`u`未解码的字符处理
+
 ## 处理时间
 
 ``` python
@@ -328,7 +352,8 @@ TODO different between datatime & time
 
 ## 并发编程
 
-TODO: need more details
+TODO: need more details, examples
+
 并发编程先要分析任务是计算量大还是读写（IO）量大：
 
 - 读写量大的话推荐使用线程或者异步；
@@ -337,6 +362,8 @@ TODO: need more details
 ### 多线程+多进程处理文件
 
 该方式处理的文件为每行为一个json对象。
+
+TODO: 初期的代码，待优化
 
 ``` python
 import os, json, math
@@ -392,35 +419,40 @@ def assign_process():
 
 ### 限制并发数量
 
-使用`multiprocessing.Queue`控制并发数量
+#### 使用`multiprocessing.Queue`控制并发数量
+
+> multiprocessing.Queue are thread and process safe.
+
+场景需求：
+
+1. 根据指定数据（如读取文件、数据库）请求API或者其他网络资源；
+2. 将获取到的资源进行处理；
+3. 网络资源的请求同一时间最多不能超过10个
 
 ``` python
 import threading
 from multiprocessing import Process, Queue
 
-def get_geo_info(org: str, q: Queue, token_q: Queue):
+def worker(data, q: Queue, token_q: Queue):
     try:
-        geo = get_geo_info_by_org(org)
+        # request_web_resources will require API or some web resources
+        result = request_web_resources(org)
     except Exception as e:
-        print(f'get geo of org [{org}] failed')
         print(e)
     else:
-        q.put({'name': org, 'geo': geo})
+        q.put(result)
     finally:
         token_q.get()
 
-def assign_org_task(result_q: Queue):
-    file_path = '/Users/zhangwei/tsinghua/assignment/20/coursemate/input/orgs.txt'
-    org_names = [x['name'] for x in get_all_geo_info()]
+def producer(result_q: Queue):
     token_q = Queue(10)  # 限制线程数量为10
     thread_pool = []
     count = 1
-    for org in org_name_generator(file_path):
-        if org in org_names:
-            continue
+    # data_generator will generate some data used to requesting API or some web resources
+    for data in data_generator(file_path):
         token_q.put(1)
-        print(f'executing {count}')
-        t = threading.Thread(target=get_geo_info, args=(org, result_q, token_q))
+        print(f'begin executing {count}')
+        t = threading.Thread(target=worker, args=(data, result_q, token_q))
         t.start()
         thread_pool.append(t)
         count += 1
@@ -429,17 +461,15 @@ def assign_org_task(result_q: Queue):
     result_q.put(None) # stop consumer
 
 def consumer(result_q: Queue):
-    output = '/Users/zhangwei/tsinghua/assignment/20/coursemate/output/geo_info.json'
-    with open(output, mode='a', encoding='utf-8') as f:
-        while True:
-            item = result_q.get()
-            if item is None:
-                break
-            f.write(json.dumps(item, ensure_ascii=False) + '\n')
+    while True:
+        item = result_q.get()
+        if item is None:
+            break
+        # user item to do something
 
 if __name__ == '__main__':
     result_q = Queue()
-    p1 = Process(target=assign_org_task, args=(result_q,))
+    p1 = Process(target=producer, args=(result_q,))
     p1.start()
     p2 = Process(target=consumer, args=(result_q,))
     p2.start()
@@ -447,9 +477,57 @@ if __name__ == '__main__':
     p2.join()
 ```
 
-TODO 也可以使用pool限制进程数量
+注意：线程之间的通信也可以使用`queue.Queue`
+
+> queue module is especially useful in threaded programming when information must be exchanged safely between multiple threads.
+
+#### 使用pool限制进程数量
+
+关注返回结果：
+
+``` python
+if __name__ == '__main__':
+    # start 4 worker processes
+    with Pool(processes=4) as pool:
+
+        # print "[0, 1, 4,..., 81]"
+        print(pool.map(f, range(10)))
+
+        # print same numbers in arbitrary order
+        for i in pool.imap_unordered(f, range(10)):
+            print(i)
+
+        # evaluate "f(20)" asynchronously
+        res = pool.apply_async(f, (20,))      # runs in *only* one process
+        print(res.get(timeout=1))             # prints "400"
+
+        # evaluate "os.getpid()" asynchronously
+        res = pool.apply_async(os.getpid, ()) # runs in *only* one process
+        print(res.get(timeout=1))             # prints the PID of that process
+
+        # launching multiple evaluations asynchronously *may* use more processes
+        multiple_results = [pool.apply_async(os.getpid, ()) for i in range(4)]
+        print([res.get(timeout=1) for res in multiple_results])
+```
+
+不关注返回结果
+
+``` python
+if __name__ == '__main__':
+    # start 4 worker processes
+    with Pool(processes=4) as pool:
+        pool.apply_async(f, (20,))
+        pool.close()
+        poll.join()
+```
+
+注意：`pool.close()`一定要在`poll.join()`之前执行
+
+> `pool.join()`：Wait for the worker processes to exit. One must call close() or terminate() before using join().
 
 ## 协程
+
+TODO：例子和说明
 
 [Python实战异步爬虫(协程)+分布式爬虫(多进程)](https://blog.csdn.net/SL_World/article/details/86633611)
 
@@ -549,6 +627,8 @@ with urllib.request.urlopen(req) as response:
 
 requests document: [More complicated POST requests](http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests)
 
+TODO: 发送json，发送表格，发送文件
+
 ``` python
 import requests
 import json
@@ -576,7 +656,7 @@ The delattr(obj, name) − to delete an attribute.
 
 ### 对象判等
 
-==、is、in区别
+TODO：`==`、`is`、`in`区别
 
 ## 链接数据库
 
@@ -628,10 +708,20 @@ replace_one
 
 ### 与json转换
 
+``` python
 from bson import json_util
+```
+
+### 正则查询
 
 ### 获取所有字段名称用于导出数据
 
 ## 测试
+
+### 单元测试
+
+import unittest
+
+### 基准测试
 
 [如何对你的Python代码进行基准测试](https://www.cnblogs.com/meishandehaizi/p/5863234.html)
