@@ -18,12 +18,17 @@
         - [正则`match()`和`search()`的不同](#正则match和search的不同)
     - [字符串](#字符串)
         - [字符串格式化](#字符串格式化)
+            - [格式化例子](#格式化例子)
         - [判断字符串中是否包含中文](#判断字符串中是否包含中文)
         - [特殊字符处理](#特殊字符处理)
-    - [处理时间](#处理时间)
+    - [伪随机数](#伪随机数)
+        - [获取一个集合内随机的不重复元素](#获取一个集合内随机的不重复元素)
+    - [时间与日期](#时间与日期)
         - [时间转换为格式字符串](#时间转换为格式字符串)
         - [字符串格式化为时间](#字符串格式化为时间)
         - [时区](#时区)
+        - [计算时间差](#计算时间差)
+        - [获取一段时间](#获取一段时间)
     - [并发编程](#并发编程)
         - [多线程+多进程处理文件](#多线程多进程处理文件)
         - [限制并发数量](#限制并发数量)
@@ -33,6 +38,7 @@
     - [异常处理](#异常处理)
         - [捕捉异常，打印异常栈](#捕捉异常打印异常栈)
     - [日志系统](#日志系统)
+        - [SMTP Handler](#smtp-handler)
     - [网络](#网络)
         - [发送GET请求](#发送get请求)
         - [发送POST请求](#发送post请求)
@@ -48,6 +54,7 @@
         - [与json转换](#与json转换)
         - [正则查询](#正则查询)
         - [获取所有字段名称用于导出数据](#获取所有字段名称用于导出数据)
+        - [批量更新](#批量更新)
     - [测试](#测试)
         - [单元测试](#单元测试)
         - [基准测试](#基准测试)
@@ -269,6 +276,56 @@ with open(csv_path, mode='w', encoding='utf-8') as f:
 - 有关`%`操作符和`str.format()`方法的讨论：[Python string formatting: % vs. .format](https://stackoverflow.com/questions/5082452/python-string-formatting-vs-format/)
 - 有关字符串格式化的介绍：[Formatted Output](https://www.python-course.eu/python3_formatted_output.php)
 
+#### 格式化例子
+
+[Python document: format-examples](https://docs.python.org/3/library/string.html#format-examples)
+
+1. 格式化时间format方式
+
+    ``` python
+    >>> import datetime
+    >>> d = datetime.datetime(2010, 7, 4, 12, 15, 58)
+    >>> '{:%Y-%m-%d %H:%M:%S}'.format(d)
+    ```
+
+2. 百分比计算
+
+    ``` python
+    >> points = 19
+    >>> total = 22
+    >>> 'Correct answers: {:.2%}'.format(points/total)
+    'Correct answers: 86.36%'
+    ```
+
+3. 千位分隔
+
+    ``` python
+    >>> '{:,}'.format(1234567890)
+    '1,234,567,890'
+    ```
+
+4. 替换 %s and %r:
+
+    ``` python
+    >>> "repr() shows quotes: {!r}; str() doesn't: {!s}".format('test1', 'test2')
+    "repr() shows quotes: 'test1'; str() doesn't: test2"
+    ```
+
+5. 对齐文字
+
+    ``` python
+    Aligning the text and specifying a width:
+
+    >>> '{:<30}'.format('left aligned')
+    'left aligned                  '
+    >>> '{:>30}'.format('right aligned')
+    '                 right aligned'
+    >>> '{:^30}'.format('centered')
+    '           centered           '
+    >>> '{:*^30}'.format('centered')  # use '*' as a fill char
+    '***********centered***********'
+    ```
+
 ### 判断字符串中是否包含中文
 
 ``` python
@@ -291,7 +348,17 @@ TODO `\u3000` 字符处理
 
 TODO: 字符串中带有`u`未解码的字符处理
 
-## 处理时间
+## 伪随机数
+
+### 获取一个集合内随机的不重复元素
+
+```python
+random.sample(sample_space, k=num)
+```
+
+- 从sample_space中选取k个独立元素
+
+## 时间与日期
 
 ``` python
 from datetime import datetime
@@ -325,6 +392,7 @@ date_str = dt.strftime("%Y-%m-%dT %H:%M:%S")
 
 - [datetime.isoformat()文档](https://docs.python.org/3.6/library/datetime.html#datetime.datetime.isoformat)
 
+
 ### 字符串格式化为时间
 
 ``` python
@@ -333,6 +401,8 @@ from datetime import datetime
 date_str = '2019-05-19 02:17 PM'
 
 dt = datetime.strptime(date_str, "%Y-%m-%d %I:%M %p")
+start = datetime.strptime("13:30:27,369", "%H:%M:%S,%f")
+end = datetime.strptime("13:31:21,852", "%H:%M:%S,%f")
 ```
 
 - [格式化说明](https://docs.python.org/3.6/library/datetime.html#strftime-and-strptime-behavior)
@@ -346,6 +416,45 @@ from datetime import datetime, timezone, timedelta
 dt = datetime.now(tz=timezone(timedelta(hours=8)))
 
 dt.tzname() # 'UTC+08:00'
+```
+
+### 计算时间差
+
+``` python
+from datetime import datetime
+
+start = datetime.strptime("13:30:27,369", "%H:%M:%S,%f")
+end = datetime.strptime("13:31:21,852", "%H:%M:%S,%f")
+duration = end - start # duration 类型 datetime.timedelta
+# datetime.timedelta Only days, seconds, and microseconds remain
+(d.days, d.seconds, d.microseconds)
+# (-1, 86399, 999999)
+```
+
+### 获取一段时间
+
+``` python
+from datetime import datetime, timedelta
+
+def convert2datetime(time_value: str):
+    return datetime.strptime(time_value, "%Y-%m-%d")
+
+def datetime2str(date):
+    return date.strftime("%Y-%m-%d")
+
+def time_range(start, end):
+    delta = timedelta(days=1)
+    start_time = convert2datetime(start)
+    end_time = convert2datetime(end)
+    while start_time <= end_time:
+        yield start_time
+        start_time = start_time + delta
+
+if __name__ == '__main_':
+    start = '2019-12-02'
+    end = '2020-03-10'
+    for time in time_generator():
+        print(datetime2str(time))
 ```
 
 TODO different between datatime & time
@@ -483,6 +592,12 @@ if __name__ == '__main__':
 
 #### 使用pool限制进程数量
 
+[Using multiprocessing pool in Python](https://stackoverflow.com/questions/55535961/using-multiprocessing-pool-in-python)
+
+注意：
+
+`pool.apply_async()` 执行的方法出错不会影响整个程序的执行，很难判断出错原因，建议可以加上`error_callback`来处理。
+
 关注返回结果：
 
 ``` python
@@ -558,12 +673,52 @@ finally:
 
     ``` python
     logging.basicConfig(filename='execute.log',
-            filemode='w',level=logging.DEBUG,
+            filemode='w', level=logging.DEBUG,
             format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
             datefmt='%Y/%m/%d %I:%M:%S %p')
     ```
 
     打印日志格式如：`2018/07/06 11:54:48 AM - MainThread - INFO - message`
+
+### SMTP Handler
+
+可以通过SMTP协议将日志以邮件的形式发送
+
+``` python
+import logging
+from logging.handlers import SMTPHandler
+
+
+def get_smtp_logger():
+    logger = logging.getLogger("smtp")
+    server_host = ''  # 更换为具体邮件服务器的URL
+    fromaddr = ''  # 发件人
+    toaddrs = ''  # 收件人，使用list可以发送多个
+    subject = 'test logger email' # 发件的主题内容
+    password = ""  # password
+    smtp_handler = SMTPHandler(
+        mailhost=server_host,
+        fromaddr=fromaddr,
+        toaddrs=toaddrs,
+        subject=subject,
+        credentials=(fromaddr, password)
+    )
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    smtp_handler.setLevel(logging.WARNING)
+    smtp_handler.setFormatter(formatter)
+    logger.addHandler(smtp_handler)
+    return logger
+
+
+if __name__ == '__main__':
+    logger = get_smtp_logger()
+    logger.warning("this is a warning test")
+    logger.error("this is a error test")
+```
+
+> 使用场景：
+> 由于每次打印一次可输出的日志信息就会发一封邮件，所以不适合频繁打印的日志信息。
+> 建议使用于WARNING或者ERROR级别的日志输出，在发生致命错误或异常的时候，如服务崩溃提示，可以在最上层进行异常捕捉，在无法处理异常需要提示维护人员的时候，可以将错误和异常堆栈信息打印并发送邮件。
 
 ## 网络
 
@@ -658,6 +813,8 @@ The delattr(obj, name) − to delete an attribute.
 
 TODO：`==`、`is`、`in`区别
 
+TODO: `@staticmethod` 和 `@classmethod` 的区别，和各自使用的场景
+
 ## 链接数据库
 
 ### 链接mongodb
@@ -715,6 +872,8 @@ from bson import json_util
 ### 正则查询
 
 ### 获取所有字段名称用于导出数据
+
+### 批量更新
 
 ## 测试
 
