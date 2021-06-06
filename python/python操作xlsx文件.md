@@ -74,6 +74,13 @@ from openpyxl import load_workbook
 wb = load_workbook('file_name')
 ```
 
+参数特别说明：
+
+- `read_only`：只读模式，无法编辑内容，可以优化数据读取速度（自测，能够提高50%），默认为False
+- `data_only`：控制单元格是读取公式还是文件读取时的值，默认为False（只获取计算结果，并不关心具体公式，可以设置为True）
+
+注：`ead_only`设置为True，则无法按列访问单元格。而且[必须调用`close()`显示关闭workbook](https://openpyxl.readthedocs.io/en/stable/optimized.html#optimised-modes)
+
 #### 获取worksheet
 
 1. 根据sheet名称获取
@@ -127,7 +134,13 @@ wb = load_workbook('file_name')
     sheet['A1:D4']  # 获取4行4列
     ```
 
-    - 注意：通过这样的方式得到的元素是个二元组
+    通过这样的方式得到的元素是二维元组，通过迭代访问单元格：
+
+    ``` python
+    for row in sheet['A1:D4']:
+        for cell in row:
+            print(cell.value)
+    ```
 
 #### 操作cell
 
